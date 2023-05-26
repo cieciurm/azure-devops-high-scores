@@ -96,16 +96,16 @@
                         const headers = new Headers();
                         headers.set("Authorization", "Basic " + btoa(":" + config.pat));
 
-                        var resp = await fetch(`https://dev.azure.com/${config.organization}/${config.project}/_apis/git/pullrequests?api-version=7.0&searchCriteria.status=completed`, {
+                        const resp = await fetch(`https://dev.azure.com/${config.organization}/${config.project}/_apis/git/pullrequests?api-version=7.0&searchCriteria.status=completed`, {
                             headers: headers
                         });
-                        var json = await resp.json();
+                        const json = await resp.json();
 
-                        for (var i = 0; i < json.value.length; i++) {
-                            var pr = json.value[i];
+                        for (let i = 0; i < json.value.length; i++) {
+                            const pr = json.value[i];
 
-                            var repo = pr.repository.name;
-                            var author = pr.createdBy.displayName;
+                            const repo = pr.repository.name;
+                            const author = pr.createdBy.displayName;
                             latestFullDate = pr.completionQueueTime;
 
                             if (!viewModel.includeTests && repo == "Tests") {
@@ -116,8 +116,8 @@
                             add(authorData, author);
                         }
 
-                        var sortedAuthorData = sort(authorData);
-                        var sortedRepoData = sort(repoData);
+                        const sortedAuthorData = sort(authorData);
+                        const sortedRepoData = sort(repoData);
 
                         viewModel.authors = sortedAuthorData;
                         viewModel.repos = sortedRepoData;
@@ -128,9 +128,6 @@
                         viewModel.latestFullDate = latestFullDate;
                     }
 
-                    //console.log(sortedAuthorData);
-                    //console.log(sortedRepoData);
-
                     const { createApp } = Vue;
 
                 createApp({
@@ -139,7 +136,14 @@
                     },
                     watch: {
                         includeTests(newVal, oldValue) {
-                            window.location = `${window.location.origin}?includeTests=${newVal}`; 
+                            const end = window.location.href.indexOf('?');
+                            let withoutQs = '';
+                            if (end == -1) {
+                                withoutQs = window.location.href;
+                            } else {
+                                withoutQs = window.location.href.substring(0, end);
+                            }
+                            window.location = `${withoutQs}?includeTests=${newVal}`;
                         }
                     },
                     computed: {
@@ -168,7 +172,7 @@
         }
 
         function sort(dict) {
-            var items = Object.keys(dict).map((key) => { return [key, dict[key]] });
+            const items = Object.keys(dict).map((key) => { return [key, dict[key]] });
 
             // Step - 2
             // Sort the array based on the second element (i.e. the value)
@@ -176,10 +180,10 @@
                 (first, second) => { return second[1] - first[1] }
             );
 
-            var sorted = [];
+            const sorted = [];
 
             // Step - 3
-            for (var i = 0; i < items.length; i++) {
+            for (let i = 0; i < items.length; i++) {
                 var item = items[i];
 
                 sorted[i] = { "name": item[0], "value": item[1] };
@@ -189,8 +193,8 @@
         }
         
         function getIncludeTests() {
-            var urlParams = new URLSearchParams(window.location.search);
-            var includeTests = urlParams.get("includeTests");
+            const urlParams = new URLSearchParams(window.location.search);
+            const includeTests = urlParams.get("includeTests");
 
             if (includeTests == undefined) {
                 return true;
