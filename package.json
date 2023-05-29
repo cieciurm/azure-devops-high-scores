@@ -1,0 +1,25 @@
+{
+  "name": "azure-devops-high-scores",
+  "version": "0.0.1",
+  "description": "Azure DevOps High Scores",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx webpack",
+    "start": "npx http-server dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cieciurm/azure-devops-high-scores.git"
+  },
+  "author": "Mateusz Cieciura",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cieciurm/azure-devops-high-scores/issues"
+  },
+  "homepage": "https://github.com/cieciurm/azure-devops-high-scores#readme",
+  "devDependencies": {
+    "copy-webpack-plugin": "^11.0.0",
+    "webpack": "^5.84.0",
+    "webpack-cli": "^5.1.1"
+  }
+}
