@@ -1,11 +1,12 @@
 const config = getConfig();
-const includeTests = getIncludeTests();
+const skipExcluded = getSkipExcluded();
 
 const viewModel = {
     show: !config.isMissing,
     title: config.project,
+    excludedRepos: config.excludedRepos,
     latestFullDate: "",
-    includeTests: includeTests,
+    skipExcluded: skipExcluded,
     authors: [],
     repos: [],
     totalForAuthors: 0,
@@ -19,11 +20,8 @@ const viewModel = {
 
     try {
         if (viewModel.show) {
-            const headers = new Headers();
-            headers.set("Authorization", "Basic " + btoa(":" + config.pat));
-
             const resp = await fetch(`https://dev.azure.com/${config.organization}/${config.project}/_apis/git/pullrequests?api-version=7.0&searchCriteria.status=completed`, {
-                headers: headers
+                headers: createHeaders(config)
             });
             const json = await resp.json();
 
@@ -34,7 +32,7 @@ const viewModel = {
                 const author = pr.createdBy.displayName;
                 latestFullDate = pr.completionQueueTime;
 
-                if (!viewModel.includeTests && repo == "Tests") {
+                if (viewModel.skipExcluded && viewModel.excludedRepos.includes(repo)) {
                     continue;
                 }
 
@@ -61,7 +59,7 @@ const viewModel = {
                 return viewModel;
             },
             watch: {
-                includeTests(newVal, oldValue) {
+                skipExcluded(newVal, oldValue) {
                     const end = window.location.href.indexOf('?');
                     let withoutQs = '';
                     if (end == -1) {
@@ -69,7 +67,7 @@ const viewModel = {
                     } else {
                         withoutQs = window.location.href.substring(0, end);
                     }
-                    window.location = `${withoutQs}?includeTests=${newVal}`;
+                    window.location = `${withoutQs}?skipExcluded=${newVal}`;
                 }
             },
             computed: {
@@ -94,7 +92,6 @@ function add(dict, key) {
     } else {
         dict[key] = dict[key] + 1;
     }
-
 }
 
 function sort(dict) {
@@ -118,15 +115,22 @@ function sort(dict) {
     return sorted;
 }
 
-function getIncludeTests() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const includeTests = urlParams.get("includeTests");
+function createHeaders(config) {
+    const headers = new Headers();
+    headers.set("Authorization", "Basic " + btoa(":" + config.pat));
 
-    if (includeTests == undefined) {
-        return true;
+    return headers;
+}
+
+function getSkipExcluded() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const skipExcluded = urlParams.get("skipExcluded");
+
+    if (skipExcluded == undefined) {
+        return false;
     }
 
-    if (includeTests == "true") {
+    if (skipExcluded == "true") {
         return true;
     }
 
@@ -137,12 +141,18 @@ function getConfig() {
     const pat = window.localStorage.getItem("pat");
     const organization = window.localStorage.getItem("organization");
     const project = window.localStorage.getItem("project");
+    const excludedReposRaw = window.localStorage.getItem("excludedRepos");
 
     const isMissing = pat == undefined || organization == undefined || project == undefined
         ? true
         : false;
 
+    let excludedRepos = [];
+    if (excludedReposRaw != null) {
+        excludedRepos = excludedReposRaw.split(";");
+    }
+
     return {
-        pat, organization, project, isMissing
+        pat, organization, project, isMissing, excludedRepos
     };
 }
