@@ -26,8 +26,8 @@
         <h1 v-if="show" class="text-center">{{ niceTitle }}</h1>
         <h3 v-if="show"  class="text-center">Data since {{ shortDate }}</h3>
         <div v-if="show"  class="text-center">
-            <input type="checkbox" id="checkbox" v-model="includeTests" />
-            <label for="checkbox">{{ includeTests ? "Including Automated Tests" : "Excluding Automated Tests"}}</label>
+            <input type="checkbox" id="checkbox" v-model="skipExcluded" />
+            <label for="checkbox">Skip excluded Repos</label>
         </div>
 
         <hr />
